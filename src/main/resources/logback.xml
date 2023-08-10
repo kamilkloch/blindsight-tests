@@ -1,0 +1,54 @@
+<configuration>
+
+    <!-- https://tersesystems.github.io/blindsight/usage/sourcecode.html -->
+    <property name="blindsight.source.enabled" value="true" scope="context"/>
+
+    <conversionRule conversionWord="nanoTime" converterClass="com.tersesystems.logback.classic.NanoTimeConverter" />
+    <conversionRule conversionWord="uniqueId" converterClass="com.tersesystems.logback.uniqueid.UniqueIdConverter" />
+    <conversionRule conversionWord="tse" converterClass="com.tersesystems.logback.classic.TimeSinceEpochConverter" />
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%uniqueId %date{H:mm:ss.SSS} [%-5level] %logger{15}:%L -  %message%ex%n</pattern>
+        </encoder>
+        <withJansi>true</withJansi>
+    </appender>
+
+    <appender name="JSON" class="ch.qos.logback.core.FileAppender">
+        <file>logs/application.ndjson</file>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <jsonGeneratorDecorator class="net.logstash.logback.decorate.PrettyPrintingJsonGeneratorDecorator"/>
+            <providers>
+                <pattern>
+                    <pattern>
+                        {
+                        "id": "%uniqueId",
+                        "relative_ns": "#asLong{%nanoTime}",
+                        "tse_ms": "#asLong{%tse}"
+                        }
+                    </pattern>
+                </pattern>
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+                <version/>
+                <message/>
+                <loggerName/>
+                <threadName/>
+                <logLevel/>
+                <logLevelValue/><!-- numeric value is useful for filtering >= -->
+                <stackHash/>
+                <mdc/>
+                <logstashMarkers/>
+                <arguments/>
+                <stackTrace/>
+            </providers>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="JSON"/>
+    </root>
+
+</configuration>
